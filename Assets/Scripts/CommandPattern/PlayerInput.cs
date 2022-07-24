@@ -6,87 +6,51 @@ namespace CommandPattern
 {
     public class PlayerInput : MonoBehaviour
     {
-        private CommandRecorder _recorder;
         [SerializeField] private Unit unitA, unitB;
 
         private bool _isPlayerOneTurn = true;
 
-        private bool _waitingForFinishCommand = false;
+        private bool _waitingForFinishMovement = false;
 
-        private Vector3? activeInput;
-
-        private void Start()
-        {
-            _recorder = new CommandRecorder();
-        }
+        private Vector3? _movement;
 
         private void Update()
         {
-            if (_waitingForFinishCommand) return;
+            if (_waitingForFinishMovement) return;
             if (Input.GetKeyDown(KeyCode.W))
             {
-                activeInput = Vector3.forward;
+                _movement = Vector3.forward;
             }
             else if (Input.GetKeyDown(KeyCode.S))
             {
-                activeInput = Vector3.back;
+                _movement = Vector3.back;
             }
             else if (Input.GetKeyDown(KeyCode.D))
             {
-                activeInput = Vector3.right;
+                _movement = Vector3.right;
             }
             else if (Input.GetKeyDown(KeyCode.A))
             {
-                activeInput = Vector3.left;
+                _movement = Vector3.left;
             }
 
-            if (!activeInput.HasValue) return;
-            ActiveUnit().StartMove(activeInput.Value);
+            if (!_movement.HasValue) return;
+            ActiveUnit().StartMove(_movement.Value);
             StartCoroutine(WaitUntilUnitAvailable(ActiveUnit()));
             _isPlayerOneTurn = !_isPlayerOneTurn;
-            activeInput = null;
+            _movement = null;
         }
 
         IEnumerator WaitUntilUnitAvailable(Unit unit)
         {
-            _waitingForFinishCommand = true;
-            yield return new WaitUntil(() => unit.CanExecuteCommand);
-            _waitingForFinishCommand = false;
-            _waitingForFinishCommand = false;
+            _waitingForFinishMovement = true;
+            yield return new WaitUntil(() => unit.CanMove);
+            _waitingForFinishMovement = false;
         }
 
         Unit ActiveUnit()
         {
             return _isPlayerOneTurn ? unitA : unitB;
         }
-
-        #region Recording
-
-        IEnumerator ExecuteFromList()
-        {
-            var last = _recorder.ExecuteCommandOnList();
-            while (last != null)
-            {
-                var last1 = last;
-                yield return new WaitUntil(() => last1.CanExecute);
-                yield return new WaitForSeconds(.05f);
-                last = _recorder.ExecuteCommandOnList();
-            }
-        }
-
-        IEnumerator FullUndo()
-        {
-            var last = _recorder.LastMovementCommand;
-            while (last != null)
-            {
-                _recorder.Undo();
-                var last1 = last;
-                yield return new WaitUntil(() => last1.CanExecute);
-                yield return new WaitForSeconds(.05f);
-                last = _recorder.LastMovementCommand;
-            }
-        }
-
-        #endregion
     }
 }

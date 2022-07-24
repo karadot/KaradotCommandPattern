@@ -2,22 +2,18 @@ using UnityEngine;
 
 namespace CommandPattern.Commands
 {
-    public class SimpleMovementCommand : IMovementCommand
+    public class SimpleMovementCommand : MovementCommandBase
     {
-        private Vector3 _movement;
-
-        public SimpleMovementCommand(Unit targetUnit, Vector3 movement)
+        public SimpleMovementCommand(Unit unit, Vector3 movement) : base(unit, movement)
         {
-            Unit = targetUnit;
-            _movement = movement;
         }
 
         public override bool Execute()
         {
-            var canExecute = Unit.CanExecuteCommand;
+            var canExecute = Unit.CanMove;
             if (canExecute)
             {
-                Unit.StartMove(_movement);
+                Unit.StartMove(Movement);
             }
 
             return canExecute;
@@ -25,9 +21,9 @@ namespace CommandPattern.Commands
 
         public override bool Undo()
         {
-            var canExecute = Unit.CanExecuteCommand;
+            var canExecute = Unit.CanMove;
             if (canExecute)
-                Unit.StartMove(-_movement);
+                Unit.StartMove(-Movement);
             return canExecute;
         }
     }

@@ -2,22 +2,18 @@ using UnityEngine;
 
 namespace CommandPattern.Commands
 {
-    public class JumpMovementCommand : IMovementCommand
+    public class JumpMovementCommand : MovementCommandBase
     {
-        private Vector3 _movement;
-
-        public JumpMovementCommand(Unit targetUnit, Vector3 movement)
+        public JumpMovementCommand(Unit unit, Vector3 movement) : base(unit, movement)
         {
-            Unit = targetUnit;
-            _movement = movement;
         }
 
         public override bool Execute()
         {
-            var canExecute = Unit.CanExecuteCommand;
+            var canExecute = Unit.CanMove;
             if (canExecute)
             {
-                Unit.StartJump(_movement);
+                Unit.StartJump(Movement);
             }
 
             return canExecute;
@@ -25,9 +21,9 @@ namespace CommandPattern.Commands
 
         public override bool Undo()
         {
-            var canExecute = Unit.CanExecuteCommand;
+            var canExecute = Unit.CanMove;
             if (canExecute)
-                Unit.StartJump(-_movement);
+                Unit.StartJump(-Movement);
             return canExecute;
         }
     }

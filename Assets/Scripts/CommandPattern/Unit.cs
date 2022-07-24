@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
-    public bool CanExecuteCommand { get; private set; }
+    public bool CanMove { get; private set; }
 
     [SerializeField] private float movementLenght = 1, jumpMovementLenght = 2, jumpHeight = 1.5f;
     [SerializeField] private float movementTime = .5f;
 
     private void Start()
     {
-        CanExecuteCommand = true;
+        CanMove = true;
     }
 
     public void StartMove(Vector3 movement)
@@ -27,7 +27,7 @@ public class Unit : MonoBehaviour
 
     private IEnumerator Move(Vector3 movement)
     {
-        CanExecuteCommand = false;
+        CanMove = false;
         var start = transform.position;
         var target = start + movement * movementLenght;
         var t = 0f;
@@ -40,12 +40,12 @@ public class Unit : MonoBehaviour
         }
 
         transform.position = Vector3.Lerp(start, target, 1);
-        CanExecuteCommand = true;
+        CanMove = true;
     }
 
     private IEnumerator Jump(Vector3 movement)
     {
-        CanExecuteCommand = false;
+        CanMove = false;
         var start = transform.position;
         var target = start + movement * jumpMovementLenght;
         var t = 0f;
@@ -61,6 +61,6 @@ public class Unit : MonoBehaviour
 
         pos = Vector3.Lerp(start, target, 1);
         transform.position = pos;
-        CanExecuteCommand = true;
+        CanMove = true;
     }
 }

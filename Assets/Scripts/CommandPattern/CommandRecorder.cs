@@ -1,29 +1,32 @@
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace CommandPattern
 {
     using Commands;
+
     public class CommandRecorder
     {
-        private Stack<IMovementCommand> _commands = new Stack<IMovementCommand>();
-        private List<IMovementCommand> _commandQueue = new List<IMovementCommand>();
-        public IMovementCommand LastMovementCommand => _commands is {Count: > 0} ? _commands.Peek() : null;
+        private Stack<MovementCommandBase> _commands = new Stack<MovementCommandBase>();
+        private List<MovementCommandBase> _commandQueue = new List<MovementCommandBase>();
+        public MovementCommandBase LastMovementCommandBase => _commands is {Count: > 0} ? _commands.Peek() : null;
 
-        public void ExecuteCommand(IMovementCommand newMovementCommand)
+        public void ExecuteCommand(MovementCommandBase newMovementCommandBase)
         {
-            if (newMovementCommand.Execute())
+            if (newMovementCommandBase.Execute())
             {
-                _commands.Push(newMovementCommand);
+                _commands.Push(newMovementCommandBase);
             }
         }
 
-        public void AddCommandToList(IMovementCommand newMovementCommand)
+        public void AddCommandToList(MovementCommandBase newMovementCommandBase)
         {
-            _commandQueue.Add(newMovementCommand);
+            _commandQueue.Add(newMovementCommandBase);
         }
 
-        public IMovementCommand ExecuteCommandOnList()
+        MovementCommandBase ExecuteCommandOnList()
         {
             if (_commandQueue.Count == 0)
                 return null;
@@ -34,12 +37,37 @@ namespace CommandPattern
             return commandToExecute;
         }
 
-        public void Undo()
+        public IEnumerator ExecuteAllCommandsOnList()
+        {
+            var last = ExecuteCommandOnList();
+            while (last != null)
+            {
+                var last1 = last;
+                yield return new WaitUntil(() => last1.CanExecute);
+                yield return new WaitForSeconds(.05f);
+                last = ExecuteCommandOnList();
+            }
+        }
+
+        void Undo()
         {
             if (_commands.Count == 0) return;
             var lastCommand = _commands.Peek();
             if (lastCommand.Undo())
                 _commands.Pop();
+        }
+
+        public IEnumerator FullUndo()
+        {
+            var last = LastMovementCommandBase;
+            while (last != null)
+            {
+                Undo();
+                var last1 = last;
+                yield return new WaitUntil(() => last1.CanExecute);
+                yield return new WaitForSeconds(.05f);
+                last = LastMovementCommandBase;
+            }
         }
     }
 }
