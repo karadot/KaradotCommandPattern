@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using CommandPattern.Commands;
 using UnityEngine;
@@ -13,6 +14,13 @@ namespace CommandPattern
         private bool _waitingForFinishMovement = false;
 
         private Vector3? _movement;
+
+        private CommandRecorder _recorder;
+
+        private void Awake()
+        {
+            _recorder = new CommandRecorder();
+        }
 
         private void Update()
         {
@@ -34,8 +42,14 @@ namespace CommandPattern
                 _movement = Vector3.left;
             }
 
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                StartCoroutine(_recorder.FullUndo());
+            }
+
             if (!_movement.HasValue) return;
-            ActiveUnit().StartMove(_movement.Value);
+            SimpleMovementCommand movementCommand = new SimpleMovementCommand(ActiveUnit(),_movement.Value);
+            _recorder.ExecuteCommand(movementCommand);
             StartCoroutine(WaitUntilUnitAvailable(ActiveUnit()));
             _isPlayerOneTurn = !_isPlayerOneTurn;
             _movement = null;
