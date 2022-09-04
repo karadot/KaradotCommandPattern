@@ -9,11 +9,11 @@ namespace CommandPattern
 
     public class CommandRecorder
     {
-        private Stack<MovementCommandBase> _commands = new Stack<MovementCommandBase>();
-        private List<MovementCommandBase> _commandQueue = new List<MovementCommandBase>();
-        public MovementCommandBase LastMovementCommandBase => _commands is {Count: > 0} ? _commands.Peek() : null;
+        private Stack<ICommand> _commands = new Stack<ICommand>();
+        private List<ICommand> _commandQueue = new List<ICommand>();
+        public ICommand LastMovementCommandBase => _commands is {Count: > 0} ? _commands.Peek() : null;
 
-        public void ExecuteCommand(MovementCommandBase newMovementCommandBase)
+        public void ExecuteCommand(ICommand newMovementCommandBase)
         {
             if (newMovementCommandBase.Execute())
             {
@@ -21,12 +21,12 @@ namespace CommandPattern
             }
         }
 
-        public void AddCommandToList(MovementCommandBase newMovementCommandBase)
+        public void AddCommandToList(ICommand newMovementCommandBase)
         {
             _commandQueue.Add(newMovementCommandBase);
         }
 
-        MovementCommandBase ExecuteCommandOnList()
+        ICommand ExecuteCommandOnList()
         {
             if (_commandQueue.Count == 0)
                 return null;

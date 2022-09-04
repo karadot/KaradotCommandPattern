@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace CommandPattern.Commands
 {
-    public abstract class MovementCommandBase
+    public abstract class MovementCommandBase : ICommand
     {
         public MovementCommandBase(Unit unit, Vector3 movement)
         {
